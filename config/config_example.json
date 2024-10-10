@@ -1,15 +1,15 @@
 {
   "development": {
     "username": "root",
-    "password": "kplosabcd123",
-    "database": "database_development",
+    "password": "",
+    "database": "Nombre de la Base de Datos",
     "host": "127.0.0.1",
     "dialect": "mysql",
-    "jwt_secret": "elsecreto"
+    "jwt_secret": "el secreto que usa jwt como firma"
   },
   "test": {
     "username": "root",
-    "password": "kplosabcd123",
+    "password": null,
     "database": "database_test",
     "host": "127.0.0.1",
     "dialect": "mysql"
