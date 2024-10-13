@@ -4,10 +4,6 @@ const { typeError } = require('./middlewares/errors');
 const PORT = 3000;
 const cors = require('cors');
 
-app.get('/', (req, res) => {
-  res.send('¡Hola Mundo!');
-});
-
 app.use(cors());
 app.use(express.json());
 
