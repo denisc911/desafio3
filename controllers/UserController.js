@@ -1,20 +1,19 @@
-const { Sequelize, User, Token } = require('../models/index');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const { where } = require('sequelize');
-const { jwt_secret } = require('../config/config.json')['development'];
+const { User } = require('../models/index');
+// const bcrypt = require('bcryptjs');
+// const jwt = require('jsonwebtoken');
+// const { where } = require('sequelize');
+// const { jwt_secret } = require('../config/config.json')['development'];
 
 const UserController = {
   // ver todos Users
   getAll(req, res) {
-    User.findAll({ include: [] })
-      .then((user) => res.send(user))
-      .catch((err) => {
-        console.log(err);
-        res.status(500).send({
-          message: 'Ha habido un problema al cargar los Users',
-        });
-      });
+    try {
+      const user = User.findAll();
+      res.status(200).send({ message: 'check', user });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({ message: error });
+    }
   },
 
   //login de usuario
