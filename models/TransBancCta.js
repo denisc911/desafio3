@@ -11,10 +11,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // Define relationships here
       // Relating TransBanc to User
-      TransBanc.hasMany(models.User, {
-        foreignKey: 'id_tran_banc',
-        as: 'usuarios',
-      });
+      TransBanc.belongsTo(models.User);
     }
   }
 

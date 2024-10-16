@@ -3,17 +3,19 @@ const { User } = require('../models/index');
 // const jwt = require('jsonwebtoken');
 // const { where } = require('sequelize');
 // const { jwt_secret } = require('../config/config.json')['development'];
+const cookies = require('cookies');
 
 const UserController = {
-  // ver todos Users
+  //traer todos los usuarios
   getAll(req, res) {
-    try {
-      const user = User.findAll();
-      res.status(200).send({ message: 'check', user });
-    } catch (error) {
-      console.log(error);
-      res.status(500).send({ message: error });
-    }
+    User.findAll()
+      .then((user) => res.send(user))
+      .catch((err) => {
+        console.log(err);
+        res.status(500).send({
+          message: 'Ha habido un problema al cargar los Users',
+        });
+      });
   },
 
   //login de usuario
@@ -34,7 +36,14 @@ const UserController = {
       }
       const token = jwt.sign({ id: user.id }, jwt_secret);
       Token.create({ token, UserId: user.id });
-      res.send({ message: 'Bienvenid@ ' + user.name, user, token });
+      res
+        .status(200)
+        .cookies('data', User, {
+          secure: true,
+          httpOnly: true,
+          path: '/acceso',
+        })
+        .send({ message: 'Bienvenid@ ' + user.name, user, token });
     });
   },
 };
