@@ -9,20 +9,26 @@ module.exports = (sequelize, DataTypes) => {
      * The models/index file will call this method automatically.
      */
     static associate(models) {
-      // Definir la relación con el modelo Usuario
-      TransBanc.hasMany(models.User, {
-        foreignKey: 'iban',
-        as: 'usuarios',
-      });
+      // Define relationships here
+      // Relating TransBanc to User
+      TransBanc.belongsTo(models.User, { foreignKey: 'id_usu' });
     }
   }
 
   TransBanc.init(
     {
+      id_tran_banc: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        allowNull: false,
+      },
+      id_usu: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
       iban: {
         type: DataTypes.STRING(45),
         allowNull: false,
-        primaryKey: true,
       },
       tipo: {
         type: DataTypes.STRING(45),
@@ -41,15 +47,15 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
       },
       fecha: {
-        type: DataTypes.DATEONLY, // DATE en MySQL
+        type: DataTypes.DATEONLY,
         allowNull: true,
       },
     },
     {
       sequelize,
-      modelName: 'TransBanc', // Nombre del modelo en Sequelize
-      tableName: 'tb_trans_banc', // Nombre de la tabla en la base de datos
-      timestamps: false, // Desactivar createdAt y updatedAt
+      modelName: 'TransBanc', // Model name
+      tableName: 'tb_trans_banc_cte', // Table name in the database
+      timestamps: false, // Disable createdAt and updatedAt
     }
   );
 
