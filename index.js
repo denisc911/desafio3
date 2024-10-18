@@ -12,6 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/user', require('./routes/user.routes'));
+app.use('/transBancCta', require('./routes/trans.routes'));
 
 app.use(typeError);
 
