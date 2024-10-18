@@ -19,33 +19,33 @@ const UserController = {
   },
 
   //login de usuario
-  login(req, res) {
-    User.findOne({
-      where: { email: req.body.email },
-    }).then((user) => {
-      if (!user) {
-        return res
-          .status(400)
-          .send({ message: 'Usuario o contraseña incorrectos' });
-      }
-      const isMatch = bcrypt.compareSync(req.body.password, user.password);
-      if (!isMatch) {
-        return res
-          .status(400)
-          .send({ message: 'Usuario o contraseña incorrectos' });
-      }
-      const token = jwt.sign({ id: user.id }, jwt_secret);
-      Token.create({ token, UserId: user.id });
-      res
-        .status(200)
-        .cookies('data', User, {
-          secure: true,
-          httpOnly: true,
-          path: '/acceso',
-        })
-        .send({ message: 'Bienvenid@ ' + user.name, user, token });
-    });
-  },
+  // login(req, res) {
+  //   User.findOne({
+  //     where: { email: req.body.email },
+  //   }).then((user) => {
+  //     if (!user) {
+  //       return res
+  //         .status(400)
+  //         .send({ message: 'Usuario o contraseña incorrectos' });
+  //     }
+  //     const isMatch = bcrypt.compareSync(req.body.password, user.password);
+  //     if (!isMatch) {
+  //       return res
+  //         .status(400)
+  //         .send({ message: 'Usuario o contraseña incorrectos' });
+  //     }
+  //     const token = jwt.sign({ id: user.id }, jwt_secret);
+  //     Token.create({ token, UserId: user.id });
+  //     res
+  //       .status(200)
+  //       .cookies('data', User, {
+  //         secure: true,
+  //         httpOnly: true,
+  //         path: '/acceso',
+  //       })
+  //       .send({ message: 'Bienvenid@ ' + user.nombre, user, token });
+  //   });
+  // },
 };
 
 module.exports = UserController;
