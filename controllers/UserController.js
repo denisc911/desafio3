@@ -1,13 +1,14 @@
-const { Sequelize, User, Token } = require('../models/index');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const { where } = require('sequelize');
-const { jwt_secret } = require('../config/config.json')['development'];
+const { User } = require('../models/index');
+// const bcrypt = require('bcryptjs');
+// const jwt = require('jsonwebtoken');
+// const { where } = require('sequelize');
+// const { jwt_secret } = require('../config/config.json')['development'];
+const cookies = require('cookies');
 
 const UserController = {
-  // ver todos Users
+  //traer todos los usuarios
   getAll(req, res) {
-    User.findAll({ include: [] })
+    User.findAll()
       .then((user) => res.send(user))
       .catch((err) => {
         console.log(err);
@@ -35,7 +36,14 @@ const UserController = {
       }
       const token = jwt.sign({ id: user.id }, jwt_secret);
       Token.create({ token, UserId: user.id });
-      res.send({ message: 'Bienvenid@ ' + user.name, user, token });
+      res
+        .status(200)
+        .cookies('data', User, {
+          secure: true,
+          httpOnly: true,
+          path: '/acceso',
+        })
+        .send({ message: 'Bienvenid@ ' + user.name, user, token });
     });
   },
 };
