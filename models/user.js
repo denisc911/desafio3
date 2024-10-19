@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // Define relationships here if necessary
-      User.hasMany(models.TransBanc);
+      User.hasMany(models.TransBanc, { foreignKey: 'id_usu' });
     }
   }
 
@@ -42,10 +42,6 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
       },
       sueldo: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-      },
-      dinero_banco: {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
