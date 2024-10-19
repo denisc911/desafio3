@@ -8,18 +8,29 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      Token.belongsTo(models.User, { foreignKey: 'id_usu' });
     }
   }
   Token.init(
     {
+      dni: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        allowNull: false,
+      },
+      id_usu: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      contraseña_encriptada: DataTypes.STRING,
       token: DataTypes.STRING,
-      id_usu: DataTypes.INTEGER,
-      role: DataTypes.STRING,
+      rol: { type: DataTypes.ENUM('cliente', 'admin'), allowNull: false },
     },
     {
       sequelize,
       modelName: 'Token',
+      tableName: 'tb_auth', // Table name in the database
+      timestamps: false, // Desactiva la creación automática de createdAt y updatedAt
     }
   );
   return Token;
