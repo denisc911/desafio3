@@ -6,8 +6,6 @@ const { authentication, isAdmin } = require('../middlewares/authentication');
 // Ruta para obtener todos los perfiles, protegida con autenticación
 router.get('/profile', authentication, UserController.getAll);
 
-// Ruta para registrar usuarios (no requiere autenticación)
-router.post('/register', UserController.register);
 
 // Ruta para hacer login de usuarios (no requiere autenticación)
 router.post('/login', UserController.login);
