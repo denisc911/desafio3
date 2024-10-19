@@ -96,6 +96,15 @@ const UserController = {
       res.status(500).send({ message: 'Error en el servidor' });
     }
   },
+
+  async access (req, res) {
+    try {
+      const access = req.cookie.user
+    } catch (error) {
+      res.status(500).send({ message: 'ERROR controler access' })
+      console.error(error)
+    }
+  }
 };
 
 module.exports = UserController;
