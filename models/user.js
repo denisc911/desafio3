@@ -45,10 +45,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
-      dinero_banco: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-      },
       vivienda: {
         type: DataTypes.STRING(45),
         allowNull: true,
