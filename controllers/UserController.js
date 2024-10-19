@@ -84,7 +84,7 @@ const UserController = {
       // Enviar la respuesta al cliente con el token y la información del usuario
       res
         .status(200)
-        .cookie('data', user, {
+        .cookie('data', {...user}, {
           secure: true,
           httpOnly: true,
           path: '/acceso',
