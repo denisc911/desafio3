@@ -6,6 +6,7 @@ const { jwt_secret } = require('../config/config.json')['development'];
 const cookie = require('cookies');
 
 const UserController = {
+
   //traer todos los usuarios
   getAll(req, res) {
     User.findAll()
@@ -16,6 +17,27 @@ const UserController = {
           message: 'Ha habido un problema al cargar los Users',
         });
       });
+  },
+
+  //USER INFO (TRAER INFO SOLO DEL USUARIO LOGUEADO)
+  async getAll(req, res) {
+    try {
+      const userId = req.user.id_usu; // Obtener el ID del usuario autenticado
+
+      // Encontrar el usuario
+      const user = await User.findByPk(userId)
+
+      if (!user) {
+        return res.status(404).send({ message: "Usuario no encontrado" });
+      }
+
+      res.status(200).send(user);
+    } catch (error) {
+      console.error("Error al obtener los datos del usuario:", error);
+      res
+        .status(500)
+        .send({ message: "Error al obtener los datos del usuario" });
+    }
   },
 
   //login de usuario
