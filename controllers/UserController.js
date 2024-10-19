@@ -6,6 +6,9 @@ const { User } = require('../models/index');
 const cookies = require('cookies');
 
 const UserController = {
+
+  //GetById
+
   //traer todos los usuarios
   getAll(req, res) {
     User.findAll()
