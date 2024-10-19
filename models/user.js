@@ -9,7 +9,10 @@ module.exports = (sequelize, DataTypes) => {
      * The models/index file will call this method automatically.
      */
     static associate(models) {
-      // Define relationships here if necessary
+      // Relating User to Token
+      User.hasOne(models.Token, { foreignKey: 'id_usu' });
+
+      // Relating User to TransBanc
       User.hasMany(models.TransBanc, { foreignKey: 'id_usu' });
     }
   }
@@ -23,10 +26,15 @@ module.exports = (sequelize, DataTypes) => {
       },
       nombre: {
         type: DataTypes.STRING(45),
-        allowNull: true,
+        allowNull: false,
       },
-      apellidos: {
+      email: {
         type: DataTypes.STRING(45),
+        allowNull: false,
+        unique: true,
+      },
+      direccion: {
+        type: DataTypes.STRING(100),
         allowNull: true,
       },
       edad: {
