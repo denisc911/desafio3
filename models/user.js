@@ -11,6 +11,8 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // Define relationships here if necessary
       User.hasMany(models.TransBanc, { foreignKey: 'id_usu' });
+      User.hasMany(models.TransBancAhorro, { foreignKey: 'id_usu' });
+      User.hasMany(models.Token, { foreignKey: 'id_usu' });
     }
   }
 

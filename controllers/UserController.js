@@ -1,9 +1,10 @@
-const { User, Token } = require('../models');
+const { User, Token, Sequelize } = require('../models');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { where } = require('sequelize');
 const { jwt_secret } = require('../config/config.json')['development'];
 const cookie = require('cookies');
+const { Op } = Sequelize;
 
 const UserController = {
   //traer todos los usuarios
@@ -72,6 +73,26 @@ const UserController = {
       // Manejo de errores
       console.error(error);
       res.status(500).send({ message: 'Error en el servidor' });
+    }
+  },
+
+  //logout de usuario
+  async logout(req, res) {
+    try {
+      await Token.destroy({
+        where: {
+          [Op.and]: [
+            { id_usu: req.user.id_usu },
+            { token: req.headers.authorization },
+          ],
+        },
+      });
+      res.send({ message: 'Desconectado con éxito' });
+    } catch (error) {
+      console.log(error);
+      res
+        .status(500)
+        .send({ message: 'hubo un problema al tratar de desconectarte' });
     }
   },
 };
