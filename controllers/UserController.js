@@ -1,8 +1,9 @@
+const { User, Token } = require('../models');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { tb_auth } = require('../models/index');  // Asegúrate de que tb_auth sea el modelo correcto
+const { where } = require('sequelize');
 const { jwt_secret } = require('../config/config.json')['development'];
-const cookies = require('cookies');
+const cookie = require('cookies');
 
 const UserController = {
   // Obtener todos los usuarios
@@ -17,73 +18,60 @@ const UserController = {
       });
   },
 
-  // Registro de usuario
-  async register(req, res) {
-    try {
-      const { dni, password } = req.body;
-
-      // Verificar si el DNI ya existe en la base de datos
-      const existingUser = await tb_auth.findOne({ where: { dni } });
-      if (existingUser) {
-        return res.status(400).send({ message: 'El DNI ya está registrado' });
-      }
-
-      // Generar un salt y encriptar la contraseña
-      const salt = bcrypt.genSaltSync(10);
-      const hashedPassword = bcrypt.hashSync(password, salt);
-
-      // Crear el usuario en la base de datos con la contraseña encriptada
-      const newUser = await tb_auth.create({
-        dni,
-        contrasenia_encriptada: hashedPassword,
-        // Otros campos que necesites agregar, como rol o token
-      });
-
-      res.status(201).send({
-        message: 'Usuario registrado con éxito',
-        user: newUser,
-      });
-    } catch (error) {
-      console.log(error);
-      res.status(500).send({
-        message: 'Error al registrar el usuario',
-      });
-    }
-  },
-
-  // Login de usuario mediante DNI
+  //login de usuario
   async login(req, res) {
     try {
-      const { dni, password } = req.body;
+      // Verificar si el DNI y la contraseña están presentes en la solicitud
+      const { dni, contraseña } = req.body;
+      if (!dni || !contraseña) {
+        return res
+          .status(400)
+          .send({ message: 'DNI y contraseña son requeridos' });
+      }
+      // Buscar el usuario en la base de datos por DNI
+      const user = await Token.findOne({
+        where: {
+          dni,
+        },
+      });
 
-      // Buscar el usuario por su DNI
-      const user = await tb_auth.findOne({ where: { dni } });
+      // Si no se encuentra el usuario, devolver un mensaje de error
       if (!user) {
-        return res.status(400).send({ message: 'DNI o contraseña incorrectos' });
+        return res.status(400).send({ message: 'Este usuario no existe' });
       }
 
-      // Comparar la contraseña ingresada con la almacenada
-      const isMatch = bcrypt.compareSync(password, user.contrasenia_encriptada);
+      // Verificar si la contraseña coincide con la almacenada en la base de datos
+      const isMatch = bcrypt.compareSync(
+        contraseña,
+        user.contraseña_encriptada
+      );
       if (!isMatch) {
-        return res.status(400).send({ message: 'DNI o contraseña incorrectos' });
+        return res
+          .status(400)
+          .send({ message: 'Usuario o contraseña incorrectos', user });
       }
 
       // Generar un token JWT
-      const token = jwt.sign({ id: user.id_usu }, jwt_secret);
+      const token = jwt.sign({ id: user.id_usu }, jwt_secret, {
+        expiresIn: '1h',
+      });
 
+      // Actualizar el token en la base de datos para el usuario autenticado
+      await Token.update({ token: token }, { where: { dni: req.body.dni } });
+
+      // Enviar la respuesta al cliente con el token y la información del usuario
       res
         .status(200)
-        .cookies('data', user, {
+        .cookie('data', user, {
           secure: true,
           httpOnly: true,
           path: '/acceso',
         })
-        .send({ message: 'Bienvenid@', user, token });
+        .send({ message: 'Bienvenid@ ' + user.dni, user, token });
     } catch (error) {
-      console.log(error);
-      res.status(500).send({
-        message: 'Error al iniciar sesión',
-      });
+      // Manejo de errores
+      console.error(error);
+      res.status(500).send({ message: 'Error en el servidor' });
     }
   },
 };

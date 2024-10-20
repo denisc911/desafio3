@@ -2,21 +2,25 @@
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-  class TransBanc extends Model {
+  class TransBancAhorro extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The models/index file will call this method automatically.
      */
     static associate(models) {
-      // Relating TransBanc to User
-      TransBanc.belongsTo(models.User, { foreignKey: 'id_usu' });
+      // Relating TransBancAhorro to User
+      TransBancAhorro.belongsTo(models.User, { foreignKey: 'id_usu' });
+      // Relating TransBancAhorro to Cuenta
+      TransBancAhorro.belongsTo(models.Cuenta, { foreignKey: 'iban', targetKey: 'iban' });
+      // Relating TransBancAhorro to CuentaHucha
+      TransBancAhorro.belongsTo(models.CuentaHucha, { foreignKey: 'iban', targetKey: 'iban' });
     }
   }
 
-  TransBanc.init(
+  TransBancAhorro.init(
     {
-      id_tran_banc: {
+      id_tran_banc_ahor: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         allowNull: false,
@@ -29,22 +33,26 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(45),
         allowNull: false,
       },
+      cantidad: {
+        type: DataTypes.DOUBLE,
+        allowNull: false,
+      },
       tipo: {
         type: DataTypes.STRING(45),
         allowNull: true,
       },
-      cantidad: {
-        type: DataTypes.DOUBLE,
+      fecha: {
+        type: DataTypes.DATE,
         allowNull: false,
       },
     },
     {
       sequelize,
-      modelName: 'TransBanc',
-      tableName: 'tb_trans_banc_cte', // Table name in the database
+      modelName: 'TransBancAhorro',
+      tableName: 'tb_trans_banc_ahor', // Table name in the database
       timestamps: false, // Disable createdAt and updatedAt
     }
   );
 
-  return TransBanc;
+  return TransBancAhorro;
 };
