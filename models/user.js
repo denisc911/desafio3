@@ -7,6 +7,8 @@ module.exports = (sequelize, DataTypes) => {
       // Define relationships here if necessary
       User.hasOne(models.Token, { foreignKey: 'id_usu' });
       User.hasMany(models.TransBanc, { foreignKey: 'id_usu' });
+      User.hasMany(models.TransBancAhorro, { foreignKey: 'id_usu' });
+      User.hasMany(models.Token, { foreignKey: 'id_usu' });
     }
   }
 

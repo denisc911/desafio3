@@ -3,6 +3,7 @@ const { COOKIE_OPTIONS } = require('../utils/constants.js')
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { jwt_secret } = require('../config/config.json')['development'];
+const { Op } = Sequelize;
 
 const UserController = {
 
@@ -75,7 +76,26 @@ const UserController = {
       res.status(500).send({ message: 'Error en el servidor' });
     }
   },
-  
+
+  //logout de usuario
+  async logout(req, res) {
+    try {
+      await Token.destroy({
+        where: {
+          [Op.and]: [
+            { id_usu: req.user.id_usu },
+            { token: req.headers.authorization },
+          ],
+        },
+      });
+      res.send({ message: 'Desconectado con éxito' });
+    } catch (error) {
+      console.log(error);
+      res
+        .status(500)
+        .send({ message: 'hubo un problema al tratar de desconectarte' });
+    }
+  },
 };
 
 module.exports = UserController;
