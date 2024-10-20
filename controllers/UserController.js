@@ -2,9 +2,7 @@ const { User, Token } = require('../models');
 const { COOKIE_OPTIONS } = require('../utils/constants.js')
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { where } = require('sequelize');
 const { jwt_secret } = require('../config/config.json')['development'];
-const cookie = require('cookies');
 
 const UserController = {
 
@@ -77,15 +75,7 @@ const UserController = {
       res.status(500).send({ message: 'Error en el servidor' });
     }
   },
-
-  async access (req, res) {
-    try {
-      const access = req.cookie.user
-    } catch (error) {
-      res.status(500).send({ message: 'ERROR controler access' })
-      console.error(error)
-    }
-  }
+  
 };
 
 module.exports = UserController;
