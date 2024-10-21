@@ -27,7 +27,9 @@ const UserController = {
         return res.status(404).send({ message: "Usuario no encontrado" });
       }
 
-      res.status(200).send(user);
+      res.status(200).send(Token);
+
+
     } catch (error) {
       console.error("Error al obtener los datos del usuario:", error);
       res
