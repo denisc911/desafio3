@@ -4,7 +4,7 @@ const { typeError } = require('./middlewares/errors');
 const PORT = 3000;
 const cors = require('cors');
 
-app.use(cors());
+app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 app.use(express.json());
 
 app.use('/user', require('./routes/user.routes'));
