@@ -3,7 +3,6 @@ const { COOKIE_OPTIONS } = require('../utils/constants.js')
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { jwt_secret } = require('../config/config.json')['development'];
-const { Op } = Sequelize;
 
 const UserController = {
 
@@ -20,12 +19,9 @@ const UserController = {
   },
 
   //USER INFO (TRAER INFO SOLO DEL USUARIO LOGUEADO)
-  async getAll(req, res) {
+  async getOneUser(req, res) {
     try {
-      const userId = req.user.id_usu; // Obtener el ID del usuario autenticado
-
-      // Encontrar el usuario
-      const user = await User.findByPk(userId)
+      const user = req.user; // Obtener el ID del usuario autenticado
 
       if (!user) {
         return res.status(404).send({ message: "Usuario no encontrado" });
