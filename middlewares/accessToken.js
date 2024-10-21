@@ -1,4 +1,4 @@
-export async function accessToken (req, res, next) {
+async function accessToken (req, res, next) {
   try {
     const access = req.cookies.data;
     if (!access) return res.status(400).send({ message: 'Acceso no proporcionado' });
@@ -15,3 +15,5 @@ export async function accessToken (req, res, next) {
     console.error(error)
   }
 }
+
+module.exports = { accessToken }
