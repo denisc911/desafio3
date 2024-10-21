@@ -1,3 +1,6 @@
+const jwt = require('jsonwebtoken');
+const jwt_secret = process.env.JWT_SECRET; 
+
 async function accessToken (req, res, next) {
   try {
     const access = req.cookies.data;
