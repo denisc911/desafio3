@@ -1,19 +1,29 @@
-const { User, TransBanc } = require('../models/index');
+const { User, TransBanc, TransBancAhorro } = require('../models/index');
 
-const TransBankCtaController = {
-  //buscar movimientos trans por usuario
+const TransBancAhorroController = {
+  //traer todos los usuarios
+  getAll(req, res) {
+    TransBancAhorro.findAll()
+      .then((user) => res.send(user))
+      .catch((err) => {
+        console.log(err);
+        res.status(500).send({
+          message: 'Ha habido un problema al cargar los Users',
+        });
+      });
+  },
+
+  //ahorros mensuales del usuario
   getById(req, res) {
     User.findByPk(req.params.id_usu, {
       include: [
         {
-          model: TransBanc,
+          model: TransBancAhorro,
         },
       ],
     })
       .then((trans) => {
         if (!trans) {
-          console.log('ID del usuario:', id_usu);
-
           return res.status(404).send({
             message:
               'No se encontraron transacciones para el usuario especificado.',
@@ -33,4 +43,4 @@ const TransBankCtaController = {
   },
 };
 
-module.exports = TransBankCtaController;
+module.exports = TransBancAhorroController;

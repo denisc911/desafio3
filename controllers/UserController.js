@@ -1,9 +1,8 @@
-const { User, Token } = require('../models/index.js');
+const { User, Token } = require('../models');
+const { COOKIE_OPTIONS } = require('../utils/constants.js')
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { where } = require('sequelize');
 const { jwt_secret } = require('../config/config.json')['development'];
-const cookie = require('cookies');
 
 const UserController = {
 
@@ -20,12 +19,9 @@ const UserController = {
   },
 
   //USER INFO (TRAER INFO SOLO DEL USUARIO LOGUEADO)
-  async getAll(req, res) {
+  async getOneUser(req, res) {
     try {
-      const userId = req.user.id_usu; // Obtener el ID del usuario autenticado
-
-      // Encontrar el usuario
-      const user = await User.findByPk(userId)
+      const user = req.user; // Obtener el ID del usuario autenticado
 
       if (!user) {
         return res.status(404).send({ message: "Usuario no encontrado" });
@@ -45,51 +41,31 @@ const UserController = {
     try {
       // Verificar si el DNI y la contraseña están presentes en la solicitud
       const { dni, contraseña } = req.body;
-      if (!dni || !contraseña) {
-        return res
-          .status(400)
-          .send({ message: 'DNI y contraseña son requeridos' });
-      }
+      if (!dni || !contraseña) return res.status(400).send({ message: 'DNI y contraseña son requeridos' });
+
       // Buscar el usuario en la base de datos por DNI
-      const user = await Token.findOne({
-        where: {
-          dni,
-        },
+      const userToken  = await Token.findOne({ 
+        where: { dni },
+        include: [{model: User, attributes: ['nombre', 'apellidos', 'edad', 'sexo', 'grupo', 'sueldo', 'vivienda', 'coche', 'hijos']}]
       });
 
       // Si no se encuentra el usuario, devolver un mensaje de error
-      if (!user) {
-        return res.status(400).send({ message: 'Este usuario no existe' });
-      }
+      if (!userToken) return res.status(400).send({ message: 'Este usuario no existe' });
 
       // Verificar si la contraseña coincide con la almacenada en la base de datos
-      const isMatch = bcrypt.compareSync(
-        contraseña,
-        user.contraseña_encriptada
-      );
-      if (!isMatch) {
-        return res
-          .status(400)
-          .send({ message: 'Usuario o contraseña incorrectos', user });
-      }
+      const isMatch = bcrypt.compare(contraseña,  userToken.contraseña_encriptada);
+      if (!isMatch) return res.status(400).send({ message: 'Usuario o contraseña incorrectos' });
 
       // Generar un token JWT
-      const token = jwt.sign({ id: user.id_usu }, jwt_secret, {
-        expiresIn: '1h',
-      });
-
-      // Actualizar el token en la base de datos para el usuario autenticado
-      await Token.update({ token: token }, { where: { dni: req.body.dni } });
+      const token = jwt.sign({ userToken: userToken }, jwt_secret, { expiresIn: '12h' });
+      await Token.update({ token: token }, { where: { dni: dni } });
+      const plainUserToken = userToken.get({ plain: true });
 
       // Enviar la respuesta al cliente con el token y la información del usuario
       res
         .status(200)
-        .cookie('data', user, {
-          secure: true,
-          httpOnly: true,
-          path: '/acceso',
-        })
-        .send({ message: 'Bienvenid@ ' + user.dni, user, token });
+        .cookie('data', plainUserToken, COOKIE_OPTIONS)
+        .send({ message: 'Bienvenid@ ' + userToken.User.nombre });
     } catch (error) {
       // Manejo de errores
       console.error(error);
@@ -97,14 +73,25 @@ const UserController = {
     }
   },
 
-  async access (req, res) {
+  //logout de usuario
+  async logout(req, res) {
     try {
-      const access = req.cookie.user
+      await Token.destroy({
+        where: {
+          [Op.and]: [
+            { id_usu: req.user.id_usu },
+            { token: req.headers.authorization },
+          ],
+        },
+      });
+      res.send({ message: 'Desconectado con éxito' });
     } catch (error) {
-      res.status(500).send({ message: 'ERROR controler access' })
-      console.error(error)
+      console.log(error);
+      res
+        .status(500)
+        .send({ message: 'hubo un problema al tratar de desconectarte' });
     }
-  }
+  },
 };
 
 module.exports = UserController;

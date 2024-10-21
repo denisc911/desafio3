@@ -4,15 +4,12 @@ const { typeError } = require('./middlewares/errors');
 const PORT = 3000;
 const cors = require('cors');
 
-app.get('/', (req, res) => {
-  res.send('¡Hola Mundo!');
-});
-
-app.use(cors());
+app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 app.use(express.json());
 
 app.use('/user', require('./routes/user.routes'));
 app.use('/transBancCta', require('./routes/trans.routes'));
+app.use('/transBancAhorro', require('./routes/transAhorro.routes'));
 
 app.use(typeError);
 
