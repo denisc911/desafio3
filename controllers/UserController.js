@@ -21,20 +21,18 @@ const UserController = {
   //USER INFO (TRAER INFO SOLO DEL USUARIO LOGUEADO)
   async getOneUser(req, res) {
     try {
-      const user = req.user; // Obtener el ID del usuario autenticado
-
+      // Usamos los datos del token decodificado para identificar al usuario
+      const userId = req.user.id_usu;
+  
+      // Aquí puedes obtener datos del usuario desde la base de datos
+      const user = await User.findByPk(userId)
+  
       if (!user) {
-        return res.status(404).send({ message: "Usuario no encontrado" });
+        return res.status(404).json({ message: 'Usuario no encontrado' });
       }
-
-      res.status(200).send(Token);
-
-
+      res.status(200).send(user)
     } catch (error) {
-      console.error("Error al obtener los datos del usuario:", error);
-      res
-        .status(500)
-        .send({ message: "Error al obtener los datos del usuario" });
+      res.status(500).json({ message: 'Error al obtener los datos del usuario' });
     }
   },
 
@@ -48,6 +46,7 @@ const UserController = {
       // Buscar el usuario en la base de datos por DNI
       const userToken  = await Token.findOne({ 
         where: { dni },
+        attributes: { exclude: ['token'] },
         include: [{model: User, attributes: ['nombre', 'apellidos', 'edad', 'sexo', 'grupo', 'sueldo', 'vivienda', 'coche', 'hijos']}]
       });
 
@@ -59,14 +58,18 @@ const UserController = {
       if (!isMatch) return res.status(400).send({ message: 'Usuario o contraseña incorrectos' });
 
       // Generar un token JWT
-      const token = jwt.sign({ userToken: userToken }, jwt_secret, { expiresIn: '12h' });
+      const token = jwt.sign({
+          dni: userToken.dni,
+          name: userToken.id_usu.nombre
+        }, 
+         jwt_secret, 
+         { expiresIn: '12h' });
       await Token.update({ token: token }, { where: { dni: dni } });
-      const plainUserToken = userToken.get({ plain: true });
 
       // Enviar la respuesta al cliente con el token y la información del usuario
       res
         .status(200)
-        .cookie('data', plainUserToken, COOKIE_OPTIONS)
+        .cookie('token', token, COOKIE_OPTIONS)
         .send({ message: 'Bienvenid@ ' + userToken.User.nombre });
     } catch (error) {
       // Manejo de errores
