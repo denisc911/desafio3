@@ -14,6 +14,8 @@ module.exports = (sequelize, DataTypes) => {
 
       // Relating User to TransBanc
       User.hasMany(models.TransBanc, { foreignKey: 'id_usu' });
+      User.hasMany(models.TransBancAhorro, { foreignKey: 'id_usu' });
+      User.hasMany(models.Token, { foreignKey: 'id_usu' });
     }
   }
 
