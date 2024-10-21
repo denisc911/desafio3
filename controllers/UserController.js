@@ -22,7 +22,7 @@ const UserController = {
   async getOneUser(req, res) {
     try {
       // Usamos los datos del token decodificado para identificar al usuario
-      const userId = req.user.id;
+      const userId = req.user.id_usu;
   
       // Aquí puedes obtener datos del usuario desde la base de datos
       const user = await User.findByPk(userId)

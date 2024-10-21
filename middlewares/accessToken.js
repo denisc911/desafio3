@@ -8,7 +8,7 @@ async function accessToken (req, res, next) {
 
     jwt.verify(access, jwt_secret, (err, decoded) => {
       if (err.name === 'TokenExpiredError') return res.status(401).send({ message: 'El token ha expirado, por favor inicia sesión de nuevo.' });
-      if (err) return res.status(401).send({ message: 'Token inválido', access });   
+      if (err) return res.status(401).send({ message: 'Token inválido', access });
 
       req.user = decoded
       next()
