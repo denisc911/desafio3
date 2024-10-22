@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
 
   TransBancAhorro.init(
     {
-      id_tran_banc: {
+      id_tran_banc_ahor: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
