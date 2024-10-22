@@ -1,13 +1,15 @@
-const { Sequelize, User, Token } = require('../models/index');
+const { User, Token, Sequelize } = require('../models');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { where } = require('sequelize');
 const { jwt_secret } = require('../config/config.json')['development'];
+const cookie = require('cookies');
+const { Op } = Sequelize;
 
 const UserController = {
-  // ver todos Users
+  //traer todos los usuarios
   getAll(req, res) {
-    User.findAll({ include: [] })
+    User.findAll()
       .then((user) => res.send(user))
       .catch((err) => {
         console.log(err);
@@ -18,25 +20,80 @@ const UserController = {
   },
 
   //login de usuario
-  login(req, res) {
-    User.findOne({
-      where: { email: req.body.email },
-    }).then((user) => {
-      if (!user) {
+  async login(req, res) {
+    try {
+      // Verificar si el DNI y la contraseña están presentes en la solicitud
+      const { dni, contraseña } = req.body;
+      if (!dni || !contraseña) {
         return res
           .status(400)
-          .send({ message: 'Usuario o contraseña incorrectos' });
+          .send({ message: 'DNI y contraseña son requeridos' });
       }
-      const isMatch = bcrypt.compareSync(req.body.password, user.password);
+      // Buscar el usuario en la base de datos por DNI
+      const user = await Token.findOne({
+        where: {
+          dni,
+        },
+      });
+
+      // Si no se encuentra el usuario, devolver un mensaje de error
+      if (!user) {
+        return res.status(400).send({ message: 'Este usuario no existe' });
+      }
+
+      // Verificar si la contraseña coincide con la almacenada en la base de datos
+      const isMatch = bcrypt.compareSync(
+        contraseña,
+        user.contraseña_encriptada
+      );
       if (!isMatch) {
         return res
           .status(400)
-          .send({ message: 'Usuario o contraseña incorrectos' });
+          .send({ message: 'Usuario o contraseña incorrectos', user });
       }
-      const token = jwt.sign({ id: user.id }, jwt_secret);
-      Token.create({ token, UserId: user.id });
-      res.send({ message: 'Bienvenid@ ' + user.name, user, token });
-    });
+
+      // Generar un token JWT
+      const token = jwt.sign({ id: user.id_usu }, jwt_secret, {
+        expiresIn: '1h',
+      });
+
+      // Actualizar el token en la base de datos para el usuario autenticado
+      await Token.update({ token: token }, { where: { dni: req.body.dni } });
+
+      // Enviar la respuesta al cliente con el token y la información del usuario
+      res
+        .status(200)
+        .cookie('data', user, {
+          secure: true,
+          httpOnly: true,
+          path: '/acceso',
+        })
+        .send({ message: 'Bienvenid@ ' + user.dni, user, token });
+    } catch (error) {
+      // Manejo de errores
+      console.error(error);
+      res.status(500).send({ message: 'Error en el servidor' });
+    }
+  },
+
+  //logout de usuario
+  async logout(req, res) {
+    try {
+      await Token.destroy({
+        where: {
+          [Op.and]: [
+            { id_usu: req.user.id_usu },
+            { token: req.headers.authorization },
+          ],
+        },
+      });
+      res.send({ message: 'Desconectado con éxito' });
+    } catch (error) {
+      console.log(error);
+      res
+        .status(500)
+        .send({ message: 'hubo un problema al tratar de desconectarte' });
+    }
   },
 };
 
