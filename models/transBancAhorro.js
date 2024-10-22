@@ -12,24 +12,17 @@ module.exports = (sequelize, DataTypes) => {
       // Relating TransBancAhorro to User
       TransBancAhorro.belongsTo(models.User, { foreignKey: 'id_usu' });
       // Relating TransBancAhorro to Cuenta
-      TransBancAhorro.belongsTo(models.Cuenta, {
-        foreignKey: 'iban',
-        targetKey: 'iban',
-      });
+      TransBancAhorro.belongsTo(models.Cuenta, { foreignKey: 'iban', targetKey: 'iban' });
       // Relating TransBancAhorro to CuentaHucha
-      TransBancAhorro.belongsTo(models.CuentaHucha, {
-        foreignKey: 'iban',
-        targetKey: 'iban',
-      });
+      TransBancAhorro.belongsTo(models.CuentaHucha, { foreignKey: 'iban', targetKey: 'iban' });
     }
   }
 
   TransBancAhorro.init(
     {
-      id_tran_banc: {
+      id_tran_banc_ahor: {
         type: DataTypes.INTEGER,
         primaryKey: true,
-        autoIncrement: true,
         allowNull: false,
       },
       id_usu: {
@@ -46,9 +39,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       tipo: {
         type: DataTypes.STRING(45),
-      },
-      importe: {
-        type: DataTypes.INTEGER,
         allowNull: true,
       },
       fecha: {
